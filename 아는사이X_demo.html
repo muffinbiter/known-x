@@ -1,0 +1,1686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>아는 사이 X</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #1a1a2e 50%, #24243e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* 아이폰 컨테이너 */
+        .phone-container {
+            width: 390px;
+            height: 844px;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 0;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 화면 */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 60px 24px 40px;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* 타이틀 화면 */
+        .title-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .app-title {
+            font-size: 3em;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 16px;
+            letter-spacing: -1px;
+        }
+
+        .app-subtitle {
+            font-size: 1em;
+            color: #8892b0;
+            margin-bottom: 60px;
+            font-weight: 400;
+        }
+
+        .app-description {
+            font-size: 0.95em;
+            color: #a8b2d1;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            max-width: 280px;
+        }
+
+        /* 버튼 */
+        button, .btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.05em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+            letter-spacing: -0.3px;
+        }
+
+        button:active, .btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            margin-top: 12px;
+        }
+
+        /* 질문 카드 */
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 28px 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .question-number {
+            font-size: 0.85em;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+        }
+
+        .question-title {
+            font-size: 1.15em;
+            color: #ffffff;
+            margin-bottom: 20px;
+            font-weight: 600;
+            line-height: 1.5;
+        }
+
+        /* 선택지 */
+        .option {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #a8b2d1;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+        }
+
+        .option:active {
+            transform: scale(0.98);
+        }
+
+        .option.selected {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border-color: #667eea;
+            color: #ffffff;
+        }
+
+        .option-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            margin-right: 12px;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-checkbox {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+        }
+
+        /* 입력 필드 */
+        input[type="text"], textarea {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px;
+            color: #ffffff;
+            font-size: 0.95em;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            resize: none;
+        }
+
+        input[type="text"]::placeholder,
+        textarea::placeholder {
+            color: #6b7280;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .input-hint {
+            font-size: 0.85em;
+            color: #8892b0;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        /* 진행 바 */
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-bottom: 32px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+
+        /* 프롤로그 */
+        .prologue-text {
+            font-size: 1.05em;
+            color: #a8b2d1;
+            line-height: 2;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .prologue-emphasis {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* 매칭 화면 */
+        .matching-screen {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        /* 채팅 화면 */
+        .chat-header {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 390px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 16px 24px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header-title {
+            font-size: 1.05em;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.received {
+            justify-content: flex-start;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 75%;
+            padding: 14px 16px;
+            border-radius: 18px;
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .message.received .message-bubble {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message.sent .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            width: fit-content;
+        }
+
+        .typing-indicator.active {
+            display: block;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #8892b0;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.7; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        /* 선택지 버튼 */
+        .choice-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .choice-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 18px;
+            border-radius: 14px;
+            color: #a8b2d1;
+            font-size: 0.9em;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .choice-btn:active {
+            transform: scale(0.98);
+            background: rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            color: #ffffff;
+        }
+
+        /* 메시지 입력 */
+        .chat-input-container {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 390px;
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 12px 16px 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-size: 0.95em;
+            resize: none;
+            max-height: 100px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* 독백 */
+        .thought {
+            text-align: center;
+            color: #8892b0;
+            font-size: 0.9em;
+            font-style: italic;
+            margin: 24px 0;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border-left: 3px solid #667eea;
+        }
+
+        /* 스크롤바 */
+        .screen::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .screen::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .screen::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+        }
+
+        /* 데모 알림 */
+        .demo-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1.5px solid rgba(102, 126, 234, 0.3);
+            border-radius: 20px;
+            padding: 32px 28px;
+            max-width: 300px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .demo-alert.active {
+            display: block;
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .demo-alert-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .demo-alert-text {
+            font-size: 0.95em;
+            color: #a8b2d1;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .skip-btn {
+            background: rgba(255, 255, 255, 0.06);
+            color: #8892b0;
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+
+        /* 채팅방 목록 */
+        .chat-room-item {
+            display: flex;
+            align-items: center;
+            padding: 18px 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-room-item:active {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .chat-room-avatar {
+            width: 52px;
+            height: 52px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin-right: 14px;
+            flex-shrink: 0;
+        }
+
+        .chat-room-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-room-name {
+            font-size: 1em;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .chat-room-last {
+            font-size: 0.9em;
+            color: #8892b0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chat-room-time {
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-left: 12px;
+        }
+
+        /* 하단 탭바 */
+        .bottom-tab-bar {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 390px;
+            height: 70px;
+            background: rgba(26, 26, 46, 0.98);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: space-around;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .tab-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            gap: 4px;
+        }
+
+        .tab-item:active {
+            transform: scale(0.95);
+        }
+
+        .tab-icon {
+            font-size: 1.4em;
+            opacity: 0.5;
+            transition: all 0.2s ease;
+        }
+
+        .tab-label {
+            font-size: 0.75em;
+            color: #8892b0;
+            transition: all 0.2s ease;
+        }
+
+        .tab-item.active .tab-icon {
+            opacity: 1;
+        }
+
+        .tab-item.active .tab-label {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        /* 탭 컨텐츠 */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* My 섹션 */
+        .my-section {
+            margin-bottom: 28px;
+        }
+
+        .my-section-title {
+            font-size: 0.85em;
+            color: #8892b0;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-left: 4px;
+        }
+
+        .my-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* 호감도 */
+        .affection-item {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .affection-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .affection-item:first-child {
+            padding-top: 0;
+        }
+
+        .affection-hearts {
+            display: flex;
+            gap: 6px;
+            font-size: 1.1em;
+        }
+
+        .heart {
+            transition: all 0.2s ease;
+        }
+
+        /* 단서 노트 */
+        .clue-item {
+            padding: 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .clue-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .clue-item:first-child {
+            padding-top: 0;
+        }
+
+        .clue-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .clue-badge {
+            background: rgba(102, 126, 234, 0.15);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #a8b2d1;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+        }
+
+        /* 충전 옵션 */
+        .charge-option {
+            background: rgba(255, 255, 255, 0.06);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+
+        .charge-option:active {
+            transform: scale(0.98);
+        }
+
+        .charge-option.selected {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+            border-color: #667eea;
+        }
+
+        .charge-option.recommended {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        }
+
+        .recommended-badge {
+            position: absolute;
+            top: -8px;
+            right: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 0.7em;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 400px) {
+            .phone-container {
+                width: 100%;
+                height: 100vh;
+                border-radius: 0;
+            }
+            
+            .chat-header, .chat-input-container, .bottom-tab-bar {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <!-- 타이틀 화면 -->
+        <div class="screen active title-screen" id="screen-title">
+            <div>
+                <h1 class="app-title">아는 사이 X</h1>
+                <p class="app-subtitle">밤의 익명 대화</p>
+                <p class="app-description">
+                    익명 채팅에서 만난 사람들.<br>
+                    그 중 한 명은...<br>
+                    당신이 아는 사이였던 그 사람입니다.
+                </p>
+                <button onclick="goToScreen('screen-survey-intro')">시작하기</button>
+            </div>
+        </div>
+
+        <!-- 설문 안내 -->
+        <div class="screen" id="screen-survey-intro">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                <h2 style="font-size: 1.5em; margin-bottom: 20px; color: #ffffff;">그 사람에 대해<br>알려주세요</h2>
+                <p style="color: #8892b0; line-height: 1.8; margin-bottom: 40px;">
+                    더 정확할수록<br>
+                    더 그 사람처럼 말합니다.
+                </p>
+                <button onclick="goToScreen('screen-q1')">시작하기</button>
+                <button class="btn-secondary" onclick="alert('설문을 건너뛸 수 없습니다')">건너뛰기</button>
+            </div>
+        </div>
+
+        <!-- Q1 -->
+        <div class="screen" id="screen-q1">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 10%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q1 / 10</div>
+                <div class="question-title">헤어진 지 얼마나 됐나요?</div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q1', '1개월 이내')">
+                    <div class="option-checkbox"></div>
+                    <span>1개월 이내</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q1', '3개월~6개월')">
+                    <div class="option-checkbox"></div>
+                    <span>3개월 ~ 6개월</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q1', '6개월~1년')">
+                    <div class="option-checkbox"></div>
+                    <span>6개월 ~ 1년</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q1', '1년~3년')">
+                    <div class="option-checkbox"></div>
+                    <span>1년 ~ 3년</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q1', '3년 이상')">
+                    <div class="option-checkbox"></div>
+                    <span>3년 이상</span>
+                </div>
+            </div>
+            <button onclick="goToScreen('screen-q2')">다음</button>
+        </div>
+
+        <!-- Q2 -->
+        <div class="screen" id="screen-q2">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 20%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q2 / 10</div>
+                <div class="question-title">그 사람의 말투는 어땠나요?</div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q2', '반말 위주')">
+                    <div class="option-checkbox"></div>
+                    <span>반말 위주, 편하고 친근하게</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q2', '존댓말 위주')">
+                    <div class="option-checkbox"></div>
+                    <span>존댓말 위주, 정중하고 예의바르게</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q2', '반말+존댓말')">
+                    <div class="option-checkbox"></div>
+                    <span>반말과 존댓말을 섞어서</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q2', '짧고 간결')">
+                    <div class="option-checkbox"></div>
+                    <span>짧고 간결하게</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q2', '이모티콘 많이')">
+                    <div class="option-checkbox"></div>
+                    <span>이모티콘을 자주 사용</span>
+                </div>
+            </div>
+            <button onclick="goToScreen('screen-q3')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q1')">이전</button>
+        </div>
+
+        <!-- Q3 -->
+        <div class="screen" id="screen-q3">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 30%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q3 / 10</div>
+                <div class="question-title">자주 사용했던 말버릇이나 표현은?</div>
+                <input type="text" id="q3-input" placeholder='예: "완전", "대박", "ㅋㅋㅋ"' maxlength="30" oninput="updateCharCount('q3-input', 'q3-count', 30); saveAnswer('q3', this.value)">
+                <div class="char-count"><span id="q3-count">0</span>/30자</div>
+                <div class="input-hint">💡 입력 안 해도 됩니다</div>
+            </div>
+            <button onclick="goToScreen('screen-q4')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q2')">이전</button>
+            <button class="skip-btn" onclick="saveAnswer('q3', ''); goToScreen('screen-q4')">건너뛰기</button>
+        </div>
+
+        <!-- Q4 -->
+        <div class="screen" id="screen-q4">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 40%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q4 / 10</div>
+                <div class="question-title">그 사람의 성격은?<br><span style="font-size: 0.85em; color: #8892b0;">(최대 2개 선택)</span></div>
+                <div class="option" onclick="selectMultiOption(this, 'q4', '활발하고 외향적')">
+                    <div class="option-checkbox"></div>
+                    <span>활발하고 외향적</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q4', '차분하고 내향적')">
+                    <div class="option-checkbox"></div>
+                    <span>차분하고 내향적</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q4', '유머러스')">
+                    <div class="option-checkbox"></div>
+                    <span>유머러스하고 장난스러움</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q4', '진지하고 신중')">
+                    <div class="option-checkbox"></div>
+                    <span>진지하고 신중함</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q4', '감성적')">
+                    <div class="option-checkbox"></div>
+                    <span>감성적이고 섬세함</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q4', '쿨하고 직설적')">
+                    <div class="option-checkbox"></div>
+                    <span>쿨하고 직설적</span>
+                </div>
+            </div>
+            <button onclick="goToScreen('screen-q5')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q3')">이전</button>
+        </div>
+
+        <!-- Q5 -->
+        <div class="screen" id="screen-q5">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 50%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q5 / 10</div>
+                <div class="question-title">그 사람이 좋아했던 것들은?</div>
+                <textarea id="q5-input" rows="3" placeholder="예: 커피, 산책, 재즈 음악, 영화, 고양이" maxlength="50" oninput="updateCharCount('q5-input', 'q5-count', 50); saveAnswer('q5', this.value)"></textarea>
+                <div class="char-count"><span id="q5-count">0</span>/50자</div>
+            </div>
+            <button onclick="goToScreen('screen-q6')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q4')">이전</button>
+        </div>
+
+        <!-- Q6 -->
+        <div class="screen" id="screen-q6">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 60%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q6 / 10</div>
+                <div class="question-title">싫어하거나 꺼렸던 것은?</div>
+                <textarea id="q6-input" rows="3" placeholder="예: 매운 음식, 더운 날씨, 늦잠, 시끄러운 곳" maxlength="50" oninput="updateCharCount('q6-input', 'q6-count', 50); saveAnswer('q6', this.value)"></textarea>
+                <div class="char-count"><span id="q6-count">0</span>/50자</div>
+                <div class="input-hint">💡 입력 안 해도 됩니다</div>
+            </div>
+            <button onclick="goToScreen('screen-q7')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q5')">이전</button>
+            <button class="skip-btn" onclick="saveAnswer('q6', ''); goToScreen('screen-q7')">건너뛰기</button>
+        </div>
+
+        <!-- Q7 -->
+        <div class="screen" id="screen-q7">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 70%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q7 / 10</div>
+                <div class="question-title">둘만의 특별한 추억이나 장소는?</div>
+                <textarea id="q7-input" rows="3" placeholder="예: 한강 야경, 제주도 여행, 단골 카페" maxlength="50" oninput="updateCharCount('q7-input', 'q7-count', 50); saveAnswer('q7', this.value)"></textarea>
+                <div class="char-count"><span id="q7-count">0</span>/50자</div>
+                <div class="input-hint">💡 입력 안 해도 됩니다</div>
+            </div>
+            <button onclick="goToScreen('screen-q8')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q6')">이전</button>
+            <button class="skip-btn" onclick="saveAnswer('q7', ''); goToScreen('screen-q8')">건너뛰기</button>
+        </div>
+
+        <!-- Q8 -->
+        <div class="screen" id="screen-q8">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 80%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q8 / 10</div>
+                <div class="question-title">자주 나눴던 대화 주제는?<br><span style="font-size: 0.85em; color: #8892b0;">(최대 2개 선택)</span></div>
+                <div class="option" onclick="selectMultiOption(this, 'q8', '일상과 직장')">
+                    <div class="option-checkbox"></div>
+                    <span>일상과 직장 이야기</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q8', '취미와 관심사')">
+                    <div class="option-checkbox"></div>
+                    <span>취미와 관심사</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q8', '미래와 꿈')">
+                    <div class="option-checkbox"></div>
+                    <span>미래와 꿈</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q8', '고민과 감정')">
+                    <div class="option-checkbox"></div>
+                    <span>고민과 감정</span>
+                </div>
+                <div class="option" onclick="selectMultiOption(this, 'q8', '농담과 장난')">
+                    <div class="option-checkbox"></div>
+                    <span>농담과 장난</span>
+                </div>
+            </div>
+            <button onclick="goToScreen('screen-q9')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q7')">이전</button>
+        </div>
+
+        <!-- Q9 -->
+        <div class="screen" id="screen-q9">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 90%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q9 / 10</div>
+                <div class="question-title">관계에서 가장 아쉬웠던 점은?</div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q9', '소통 부족')">
+                    <div class="option-checkbox"></div>
+                    <span>소통이 부족했어요</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q9', '시간 부족')">
+                    <div class="option-checkbox"></div>
+                    <span>함께할 시간이 부족했어요</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q9', '성격 차이')">
+                    <div class="option-checkbox"></div>
+                    <span>성격 차이가 컸어요</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q9', '외부 요인')">
+                    <div class="option-checkbox"></div>
+                    <span>외부 요인 (거리, 환경 등)</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q9', '타이밍')">
+                    <div class="option-checkbox"></div>
+                    <span>타이밍이 안 맞았어요</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q9', '모르겠음')">
+                    <div class="option-checkbox"></div>
+                    <span>잘 모르겠어요</span>
+                </div>
+            </div>
+            <button onclick="goToScreen('screen-q10')">다음</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q8')">이전</button>
+        </div>
+
+        <!-- Q10 -->
+        <div class="screen" id="screen-q10">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 100%"></div>
+            </div>
+            <div class="question-card">
+                <div class="question-number">Q10 / 10</div>
+                <div class="question-title">지금 그 사람에 대한 마음은?</div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q10', '그립다')">
+                    <div class="option-checkbox"></div>
+                    <span>아직도 그립다</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q10', '궁금하다')">
+                    <div class="option-checkbox"></div>
+                    <span>궁금하긴 하다</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q10', '가끔 생각남')">
+                    <div class="option-checkbox"></div>
+                    <span>정리됐지만 가끔 생각난다</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q10', '미안하다')">
+                    <div class="option-checkbox"></div>
+                    <span>미안하거나 후회된다</span>
+                </div>
+                <div class="option" onclick="selectOption(this); saveAnswer('q10', '모르겠다')">
+                    <div class="option-checkbox"></div>
+                    <span>잘 모르겠다</span>
+                </div>
+            </div>
+            <button onclick="goToScreen('screen-survey-complete')">완료</button>
+            <button class="btn-secondary" onclick="goToScreen('screen-q9')">이전</button>
+        </div>
+
+        <!-- 설문 완료 -->
+        <div class="screen" id="screen-survey-complete">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center;">
+                <div style="font-size: 3em; margin-bottom: 20px;">✓</div>
+                <h2 style="font-size: 1.4em; margin-bottom: 16px; color: #ffffff;">완료되었습니다</h2>
+                <p style="color: #8892b0; line-height: 1.8; margin-bottom: 40px;">
+                    입력하신 정보로<br>
+                    그 사람을<br>
+                    만들고 있습니다...
+                </p>
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <button onclick="setTimeout(() => goToScreen('screen-prologue'), 500)" style="margin-top: 40px;">계속하기</button>
+            </div>
+        </div>
+
+        <!-- 프롤로그 -->
+        <div class="screen" id="screen-prologue">
+            <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                <p class="prologue-text">밤 11시 47분</p>
+                <p class="prologue-text">침대에 누워있다</p>
+                <p class="prologue-text" style="margin-top: 40px;">잠이 안 온다.</p>
+                <p class="prologue-text">스크롤을 내리다 멈춘다.</p>
+                <p class="prologue-text" style="margin-top: 40px;"><span class="prologue-emphasis">...그 사람 생각이 자꾸 난다.</span></p>
+                <p class="prologue-text" style="margin-top: 60px; margin-bottom: 60px;">
+                    <span style="background: rgba(255,255,255,0.08); padding: 12px 20px; border-radius: 12px; display: inline-block;">
+                        "아는 사이 - 밤의 이야기"
+                    </span>
+                </p>
+                <p class="prologue-text">...별거 아닌 앱.</p>
+                <p class="prologue-text">아무 의미 없는 대화.</p>
+                <p class="prologue-text"><span class="prologue-emphasis">그런 게 필요한 밤이다.</span></p>
+                <button onclick="goToScreen('screen-matching')" style="margin-top: 60px;">앱 실행하기</button>
+            </div>
+        </div>
+
+        <!-- 매칭 화면 -->
+        <div class="screen matching-screen" id="screen-matching">
+            <div>
+                <h2 style="font-size: 1.3em; margin-bottom: 16px; color: #ffffff;">매칭 중...</h2>
+                <p style="color: #8892b0; margin-bottom: 40px;">밤의 대화 상대를<br>찾고 있습니다</p>
+                <div class="loading-dots">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <div id="matching-status" style="margin-top: 40px; color: #8892b0; font-size: 0.9em;">
+                    <!-- 매칭 상태 표시 -->
+                </div>
+                <button id="matching-btn" onclick="startMatching()" style="margin-top: 60px; display: none;">계속하기</button>
+            </div>
+        </div>
+
+        <!-- 채팅방 목록 -->
+        <div class="screen" id="screen-chat-list" style="padding: 0;">
+            <div class="chat-header">
+                <span style="font-size: 1.2em;">💬</span>
+                <span class="chat-header-title">아는 사이</span>
+            </div>
+            
+            <!-- 채팅 탭 -->
+            <div id="tab-chats" class="tab-content active" style="padding: 80px 0 90px; height: 100%; overflow-y: auto;">
+                <div class="chat-room-item" onclick="goToChat('A')">
+                    <div class="chat-room-avatar">🌙</div>
+                    <div class="chat-room-content">
+                        <div class="chat-room-name">밤하늘</div>
+                        <div class="chat-room-last">안녕하세요~</div>
+                    </div>
+                    <div class="chat-room-time">방금</div>
+                </div>
+
+                <div class="chat-room-item" onclick="goToChat('B')">
+                    <div class="chat-room-avatar">😊</div>
+                    <div class="chat-room-content">
+                        <div class="chat-room-name">해맑음</div>
+                        <div class="chat-room-last">안녕하세요!! ㅋㅋㅋ</div>
+                    </div>
+                    <div class="chat-room-time">방금</div>
+                </div>
+
+                <div class="chat-room-item" onclick="goToChat('C')">
+                    <div class="chat-room-avatar">🌃</div>
+                    <div class="chat-room-content">
+                        <div class="chat-room-name">도시밤</div>
+                        <div class="chat-room-last">안녕하세요.</div>
+                    </div>
+                    <div class="chat-room-time">방금</div>
+                </div>
+            </div>
+
+            <!-- My 탭 -->
+            <div id="tab-my" class="tab-content" style="padding: 80px 24px 90px; height: 100%; overflow-y: auto;">
+                <!-- 행동 포인트 -->
+                <div class="my-section">
+                    <div class="my-section-title">행동 포인트</div>
+                    <div class="my-card" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-color: rgba(102, 126, 234, 0.3);">
+                        <div style="text-align: center; padding: 8px 0;">
+                            <div style="font-size: 0.9em; color: #a8b2d1; margin-bottom: 12px;">현재 보유 포인트</div>
+                            <div style="font-size: 3em; font-weight: 700; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 4px;">
+                                ⚡ 2
+                            </div>
+                            <div style="font-size: 0.85em; color: #8892b0; margin-bottom: 20px;">
+                                매일 밤 12시에 2pt 자동 충전
+                            </div>
+                            <button onclick="chargePoints()" style="width: 100%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                💎 포인트 충전하기
+                            </button>
+                        </div>
+                        <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                            <div style="font-size: 0.85em; color: #8892b0; line-height: 1.6;">
+                                💡 포인트 사용법<br>
+                                • <strong style="color: #ffffff;">깊은 대화 (2pt)</strong> - 집중 대화<br>
+                                • <strong style="color: #ffffff;">가벼운 대화 (1pt)</strong> - 짧은 대화<br>
+                                • <strong style="color: #ffffff;">복기 (0pt)</strong> - 대화 다시보기
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 닉네임 설정 -->
+                <div class="my-section">
+                    <div class="my-section-title">내 정보</div>
+                    <div class="my-card">
+                        <div style="margin-bottom: 12px; color: #a8b2d1; font-size: 0.9em;">닉네임</div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="nickname-input" placeholder="닉네임을 입력하세요" style="flex: 1;" value="익명의 밤">
+                            <button onclick="saveNickname()" style="width: auto; padding: 12px 20px;">저장</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 호감도 -->
+                <div class="my-section">
+                    <div class="my-section-title">호감도</div>
+                    <div class="my-card">
+                        <div class="affection-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <span style="font-size: 1.3em;">🌙</span>
+                                <span style="font-weight: 600;">밤하늘</span>
+                            </div>
+                            <div class="affection-hearts">
+                                <span class="heart filled">❤️</span>
+                                <span class="heart filled">❤️</span>
+                                <span class="heart filled">❤️</span>
+                                <span class="heart">🤍</span>
+                                <span class="heart">🤍</span>
+                            </div>
+                        </div>
+
+                        <div class="affection-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <span style="font-size: 1.3em;">😊</span>
+                                <span style="font-weight: 600;">해맑음</span>
+                            </div>
+                            <div class="affection-hearts">
+                                <span class="heart filled">❤️</span>
+                                <span class="heart filled">❤️</span>
+                                <span class="heart">🤍</span>
+                                <span class="heart">🤍</span>
+                                <span class="heart">🤍</span>
+                            </div>
+                        </div>
+
+                        <div class="affection-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <span style="font-size: 1.3em;">🌃</span>
+                                <span style="font-weight: 600;">도시밤</span>
+                            </div>
+                            <div class="affection-hearts">
+                                <span class="heart filled">❤️</span>
+                                <span class="heart">🤍</span>
+                                <span class="heart">🤍</span>
+                                <span class="heart">🤍</span>
+                                <span class="heart">🤍</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 단서 노트 -->
+                <div class="my-section">
+                    <div class="my-section-title">단서 노트</div>
+                    <div class="my-card">
+                        <div class="clue-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <span style="font-size: 1.3em;">🌙</span>
+                                <span style="font-weight: 600;">밤하늘</span>
+                                <span style="margin-left: auto; color: #667eea; font-size: 0.85em;">🧩 3/5</span>
+                            </div>
+                            <div class="clue-list">
+                                <div class="clue-badge">✓ "완전" 말버릇</div>
+                                <div class="clue-badge">✓ 한강 산책 좋아함</div>
+                                <div class="clue-badge">✓ 밤 야경 선호</div>
+                            </div>
+                        </div>
+
+                        <div class="clue-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <span style="font-size: 1.3em;">😊</span>
+                                <span style="font-weight: 600;">해맑음</span>
+                                <span style="margin-left: auto; color: #667eea; font-size: 0.85em;">🧩 1/5</span>
+                            </div>
+                            <div class="clue-list">
+                                <div class="clue-badge">✓ 이모티콘 많이 씀</div>
+                            </div>
+                        </div>
+
+                        <div class="clue-item">
+                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                                <span style="font-size: 1.3em;">🌃</span>
+                                <span style="font-weight: 600;">도시밤</span>
+                                <span style="margin-left: auto; color: #667eea; font-size: 0.85em;">🧩 2/5</span>
+                            </div>
+                            <div class="clue-list">
+                                <div class="clue-badge">✓ 간결한 말투</div>
+                                <div class="clue-badge">✓ 차분한 성격</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 하단 탭바 -->
+            <div class="bottom-tab-bar">
+                <div class="tab-item active" onclick="switchTab('chats')">
+                    <div class="tab-icon">💬</div>
+                    <div class="tab-label">채팅</div>
+                </div>
+                <div class="tab-item" onclick="switchTab('my')">
+                    <div class="tab-icon">👤</div>
+                    <div class="tab-label">MY</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 채팅 화면 -->
+        <div class="screen" id="screen-chat" style="padding: 0;">
+            <div class="chat-header">
+                <span onclick="goToScreen('screen-chat-list')" style="cursor: pointer; margin-right: 8px;">←</span>
+                <span style="font-size: 1.2em;">🌙</span>
+                <span class="chat-header-title">밤하늘</span>
+            </div>
+            
+            <div class="chat-messages" style="padding: 80px 24px 120px;">
+                <div class="message received">
+                    <div class="message-bubble">안녕하세요~</div>
+                </div>
+                <div class="message sent">
+                    <div class="message-bubble">안녕하세요</div>
+                </div>
+                <div class="message received">
+                    <div class="message-bubble">잠 안 오시나봐요? ㅋㅋ</div>
+                </div>
+                
+                <div class="thought">
+                    💭 "...생각이 많다니. 나랑 비슷하네."
+                </div>
+
+                <div class="choice-buttons" id="choice-1" style="display: none;">
+                    <button class="choice-btn" onclick="selectChoice(1, 1)">
+                        ① 네, 요즘 잠이 잘 안 와요. 님도 그래요?
+                    </button>
+                    <button class="choice-btn" onclick="selectChoice(1, 2)">
+                        ② ㅋㅋ 그냥 심심해서
+                    </button>
+                    <button class="choice-btn" onclick="selectChoice(1, 3)">
+                        ③ 뭐하고 계셨어요?
+                    </button>
+                </div>
+
+                <div id="typing" class="typing-indicator">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-input-container">
+                <div class="chat-input-wrapper">
+                    <textarea class="chat-input" placeholder="메시지 입력..." rows="1" oninput="autoResize(this)" onkeypress="if(event.key==='Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }"></textarea>
+                    <button class="send-btn" onclick="sendMessage()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 데모 알림 -->
+    <div class="demo-alert" id="demo-alert">
+        <div class="demo-alert-title">🎮 데모 버전입니다</div>
+        <div class="demo-alert-text">
+            실제 대화 기능을 사용하려면<br>
+            AI API 연결이 필요해요
+        </div>
+        <button onclick="closeDemoAlert()">확인</button>
+    </div>
+
+    <!-- 포인트 충전 팝업 -->
+    <div class="demo-alert" id="charge-popup" style="max-width: 340px; padding: 28px 24px;">
+        <div class="demo-alert-title">💎 포인트 충전</div>
+        <div style="margin: 24px 0;">
+            <div class="charge-option" onclick="selectChargeOption(this, 10)">
+                <div style="flex: 1;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #ffffff; margin-bottom: 4px;">⚡ 10 포인트</div>
+                    <div style="font-size: 0.85em; color: #8892b0;">깊은 대화 5회</div>
+                </div>
+                <div style="font-size: 1.2em; font-weight: 700; color: #667eea;">₩3,300</div>
+            </div>
+            <div class="charge-option" onclick="selectChargeOption(this, 30)">
+                <div style="flex: 1;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #ffffff; margin-bottom: 4px;">⚡ 30 포인트</div>
+                    <div style="font-size: 0.85em; color: #8892b0;">깊은 대화 15회 <span style="color: #667eea;">+10% 보너스</span></div>
+                </div>
+                <div style="font-size: 1.2em; font-weight: 700; color: #667eea;">₩9,900</div>
+            </div>
+            <div class="charge-option recommended" onclick="selectChargeOption(this, 50)">
+                <div class="recommended-badge">추천</div>
+                <div style="flex: 1;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #ffffff; margin-bottom: 4px;">⚡ 50 포인트</div>
+                    <div style="font-size: 0.85em; color: #8892b0;">깊은 대화 25회 <span style="color: #667eea;">+20% 보너스</span></div>
+                </div>
+                <div style="font-size: 1.2em; font-weight: 700; color: #667eea;">₩14,900</div>
+            </div>
+            <div class="charge-option" onclick="selectChargeOption(this, 100)">
+                <div style="flex: 1;">
+                    <div style="font-size: 1.1em; font-weight: 600; color: #ffffff; margin-bottom: 4px;">⚡ 100 포인트</div>
+                    <div style="font-size: 0.85em; color: #8892b0;">깊은 대화 50회 <span style="color: #667eea;">+30% 보너스</span></div>
+                </div>
+                <div style="font-size: 1.2em; font-weight: 700; color: #667eea;">₩24,900</div>
+            </div>
+        </div>
+        <button onclick="purchasePoints()" style="width: 100%; margin-bottom: 8px;">구매하기</button>
+        <button onclick="closeChargePopup()" style="background: rgba(255, 255, 255, 0.06); color: #8892b0;">취소</button>
+    </div>
+
+    <script>
+        // 답변 저장
+        const answers = {};
+        
+        function saveAnswer(key, value) {
+            answers[key] = value;
+            console.log('저장된 답변:', answers);
+        }
+
+        // 화면 전환
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+            document.getElementById(screenId).scrollTop = 0;
+        }
+
+        // 선택지 (단일)
+        function selectOption(element) {
+            const parent = element.parentElement;
+            parent.querySelectorAll('.option').forEach(opt => opt.classList.remove('selected'));
+            element.classList.add('selected');
+        }
+
+        // 선택지 (다중, 최대 2개)
+        function selectMultiOption(element, questionKey, value) {
+            const parent = element.parentElement;
+            const selected = parent.querySelectorAll('.option.selected');
+            
+            if (element.classList.contains('selected')) {
+                element.classList.remove('selected');
+                const currentAnswers = answers[questionKey] || [];
+                answers[questionKey] = currentAnswers.filter(v => v !== value);
+            } else {
+                if (selected.length >= 2) {
+                    alert('최대 2개까지만 선택할 수 있습니다');
+                    return;
+                }
+                element.classList.add('selected');
+                if (!answers[questionKey]) answers[questionKey] = [];
+                answers[questionKey].push(value);
+            }
+        }
+
+        // 글자 수 카운트
+        function updateCharCount(inputId, countId, max) {
+            const input = document.getElementById(inputId);
+            const count = document.getElementById(countId);
+            count.textContent = input.value.length;
+        }
+
+        // 텍스트 영역 자동 크기
+        function autoResize(textarea) {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        }
+
+        // 채팅 관련
+        let chatStep = 0;
+
+        function showTyping() {
+            document.getElementById('typing').classList.add('active');
+        }
+
+        function hideTyping() {
+            document.getElementById('typing').classList.remove('active');
+        }
+
+        function addMessage(text, isSent = false) {
+            const messagesContainer = document.querySelector('.chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isSent ? 'sent' : 'received'}`;
+            messageDiv.innerHTML = `<div class="message-bubble">${text}</div>`;
+            
+            // typing 앞에 삽입
+            const typing = document.getElementById('typing');
+            messagesContainer.insertBefore(messageDiv, typing);
+            
+            // 스크롤
+            setTimeout(() => {
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 100);
+        }
+
+        function selectChoice(choiceNum, optionNum) {
+            if (choiceNum === 1) {
+                document.getElementById('choice-1').style.display = 'none';
+                
+                if (optionNum === 1) {
+                    addMessage('네, 요즘 잠이 잘 안 와요. 님도 그래요?', true);
+                    
+                    showTyping();
+                    setTimeout(() => {
+                        hideTyping();
+                        addMessage('저도요 ㅋㅋ 요즘 생각이 많아서');
+                        
+                        setTimeout(() => {
+                            const thought = document.createElement('div');
+                            thought.className = 'thought';
+                            thought.innerHTML = '💭 "말투가... 묘하게 편한데."';
+                            const messagesContainer = document.querySelector('.chat-messages');
+                            const typing = document.getElementById('typing');
+                            messagesContainer.insertBefore(thought, typing);
+                        }, 1000);
+                    }, 2000);
+                }
+            }
+        }
+
+        function sendMessage() {
+            const input = document.querySelector('.chat-input');
+            const message = input.value.trim();
+            
+            if (message) {
+                showDemoAlert();
+            }
+        }
+
+        function showDemoAlert() {
+            document.getElementById('demo-alert').classList.add('active');
+        }
+
+        function closeDemoAlert() {
+            document.getElementById('demo-alert').classList.remove('active');
+        }
+
+        // 초기화
+        setTimeout(() => {
+            document.getElementById('choice-1').style.display = 'flex';
+        }, 1000);
+
+        // 매칭 애니메이션
+        let matchCount = 0;
+        function startMatching() {
+            const statusDiv = document.getElementById('matching-status');
+            const btn = document.getElementById('matching-btn');
+            btn.style.display = 'none';
+            
+            matchCount = 0;
+            const matchInterval = setInterval(() => {
+                matchCount++;
+                
+                if (matchCount === 1) {
+                    statusDiv.innerHTML = '✓ 밤하늘님과 매칭되었습니다';
+                } else if (matchCount === 2) {
+                    statusDiv.innerHTML = '✓ 밤하늘님과 매칭되었습니다<br>✓ 해맑음님과 매칭되었습니다';
+                } else if (matchCount === 3) {
+                    statusDiv.innerHTML = '✓ 밤하늘님과 매칭되었습니다<br>✓ 해맑음님과 매칭되었습니다<br>✓ 도시밤님과 매칭되었습니다';
+                    clearInterval(matchInterval);
+                    btn.textContent = '채팅 시작하기';
+                    btn.style.display = 'block';
+                    btn.onclick = () => goToScreen('screen-chat-list');
+                }
+            }, 1500);
+        }
+
+        // 화면 진입 시 자동 매칭 시작
+        const originalGoToScreen = goToScreen;
+        goToScreen = function(screenId) {
+            originalGoToScreen(screenId);
+            if (screenId === 'screen-matching') {
+                setTimeout(startMatching, 1000);
+            }
+        };
+
+        // 채팅방 선택
+        function goToChat(character) {
+            if (character === 'A') {
+                goToScreen('screen-chat');
+            } else {
+                alert('데모 버전에서는 밤하늘님과의 대화만 체험할 수 있습니다');
+            }
+        }
+
+        // 탭 전환
+        function switchTab(tabName) {
+            // 탭 컨텐츠 전환
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            if (tabName === 'chats') {
+                document.getElementById('tab-chats').classList.add('active');
+            } else if (tabName === 'my') {
+                document.getElementById('tab-my').classList.add('active');
+            }
+
+            // 탭 아이템 active 전환
+            document.querySelectorAll('.tab-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+        }
+
+        // 닉네임 저장
+        function saveNickname() {
+            const nickname = document.getElementById('nickname-input').value.trim();
+            if (nickname) {
+                alert(`닉네임이 "${nickname}"으로 저장되었습니다!`);
+            } else {
+                alert('닉네임을 입력해주세요');
+            }
+        }
+
+        // 포인트 충전 팝업
+        let selectedPoints = 10;
+        
+        function chargePoints() {
+            document.getElementById('charge-popup').classList.add('active');
+        }
+
+        function closeChargePopup() {
+            document.getElementById('charge-popup').classList.remove('active');
+        }
+
+        function selectChargeOption(element, points) {
+            // 모든 옵션 선택 해제
+            document.querySelectorAll('.charge-option').forEach(opt => {
+                if (!opt.classList.contains('recommended')) {
+                    opt.classList.remove('selected');
+                }
+            });
+            
+            // 선택된 옵션 표시
+            element.classList.add('selected');
+            selectedPoints = points;
+        }
+
+        function purchasePoints() {
+            alert(`⚡ ${selectedPoints} 포인트 구매가 완료되었습니다!\n(데모 버전이라 실제 결제는 안 돼요 ㅎㅎ)`);
+            closeChargePopup();
+        }
+    </script>
+</body>
+</html>
